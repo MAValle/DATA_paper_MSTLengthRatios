@@ -12,7 +12,8 @@ rm(list = ls())
 library(igraph)
 library(ggplot2)
 library(purrr)
-data <- read.csv("data150419.csv")
+#data <- read.csv("data150419.csv") #data daily
+data <- read.csv("data170419.csv") #data weekly
 data <- data[complete.cases(data), ]
 
 
@@ -83,7 +84,8 @@ while ( fin <= nrow(data) ) {
 storage_data <- as.data.frame(storage_data)
 colnames(storage_data) <- c("bloack", names(columnas))
 storage_data <- storage_data[complete.cases(storage_data), ]
-write.csv(storage_data,'mst_lengths_170419.csv')
+write.csv(storage_data,'mst_lengths_daily_170419.csv')
+write.csv(storage_data,'mst_lengths_weekly_170419.csv')
 # # # ## ## ## ## ## ## ## # CODE # ## ## ## ## ## ## ## #
 
 plot(storage_data[,7], type="l" )
