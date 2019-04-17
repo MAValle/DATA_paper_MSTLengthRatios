@@ -8,77 +8,82 @@
 # 15-abr-19
 # lectura de datos de Retornos acciones + bonos_daily_5y.csv
 
+rm(list = ls())
 library(igraph)
 library(ggplot2)
+library(purrr)
 data <- read.csv("data150419.csv")
 data <- data[complete.cases(data), ]
-data_america <- data[, c(2:9)]
-data_europe <- data[, c(10:18)]
-data_asia <- data[, c(19:25)]
-data_oceania <- data[, c(29:30)]
-data_comm <- data[, c(31:34)]
-data_bonds <- data[, c(26:28)]
 
-# codigo para ir tomando de a 40 datos con traslapes de a 5
+
+# 17-abr-19
+# aqui parte lo nuevo
+
+#input:
+#columnas en data en las que se encuentra cada tipo de instrumento
+columnas <- list("america" = c(2:9), "europe" = c(10:18), "asia" = c(19:25),
+              "oceania" = c(29:30), "commodities" = c(31:34), "bonds" = c(26:28),
+              "all_indices" = c(2:34))
+#ejemplo: colsy$america
+# length(colsy) = 6
+
+# # # ## ## ## ## ## ## ## #Funcion para seleccionar muestras # ## ## ## ## ## ## ## #
+#crear una funcion extraer datos de fila ini:fin con columnas deseadas para 
+#cada tipo de insturmento y cada datos quede en una lista distinta
+# input:
+#data # donde se encuentra la data
+# input:
+#ini : inicio de fila a considerar
+#fin : termino de fila a considerar
+# output
+# listas con dataframes de grupos de mismos instrumentos con filas de ini a fin
+get_subdt <- function(data, colsy, ini, fin) {
+  output <- vector("list", length(colsy))
+  #filas <- c(ini:fin)
+  for (i in seq_along(colsy)) {
+    columns <- colsy[[i]]
+    #print(columns)
+    output[[i]] <- data[ c(ini:fin), columns]
+  }
+  return(output)
+}
+# ejemplo
+#df <- get_subdt(data=data, colsy=columnas, ini=1, fin=40)
+# # # ## ## ## ## ## ## ## #F uncion para seleccionar muestras # ## ## ## ## ## ## ## #
+
+# # # ## ## ## ## ## ## ## # CODE # ## ## ## ## ## ## ## #
 desfase <- 5
 ini <- -4
 fin <- 0
 cont <- 1
-largos_acc <- vector(mode="numeric", length=0)
-largos_bon <- vector(mode="numeric", length=0)
-corrs_acc <- vector(mode="numeric", length=0)
-corrs_bon <- vector(mode="numeric", length=0)
-corrs_all <- vector(mode="numeric", length=0)
-
+storage_data <- matrix(NA, ncol=length(columnas)+1, nrow=nrow(data))
 while ( fin <= nrow(data) ) {
   cat("\r", "Processing data..Iteration number:", cont)
   ini <- ini + desfase
   #print(ini)
   fin <- ini + 39
-  #print(fin)
-  df <- data[c(ini:fin), ]
-  df_acc <- data_acc[c(ini:fin), ]
-  df_bon <- data_bon[c(ini:fin), ]
-  
-  rho_all <- cor(df[, c(2:ncol(df))], method="pearson")
-  mean_corr_all <- mean(rho_all[lower.tri(rho_acc, diag=FALSE)])
-  rho_acc <- cor(df_acc[, c(2:ncol(df_acc))], method="pearson")
-  d_acc <- sqrt(1-rho_acc)
-  mean_corr_acc <- mean(rho_acc[lower.tri(rho_acc, diag=FALSE)])
-  rho_bon <- cor(df_bon[, c(2:ncol(df_bon))], method="pearson")
-  d_bon <- sqrt(1-rho_bon)
-  mean_corr_bon <- mean(rho_bon[lower.tri(rho_bon, diag=FALSE)])
-  
+  # get teh sub-data
+  df <- get_subdt(data=data, colsy=columnas, ini=ini, fin=fin)
+  # calculo de las correlaciones para cada dataframe contenida en la lista
+  rho_list <- map(df, cor, method="pearson")
+  # conversion a distancias
+  distances_list <- map(rho_list, function(df) sqrt(1-df) )
   # net creation from distances
-  g_acc <- graph_from_adjacency_matrix(d_acc, mode="upper", weighted=TRUE, diag=FALSE)
-  mst_g_acc <- minimum.spanning.tree(g_acc, algorithm="prim")
-  g_bon <- graph_from_adjacency_matrix(d_bon, mode="upper", weighted=TRUE, diag=FALSE)
-  mst_g_bon <- minimum.spanning.tree(g_bon, algorithm="prim")
+  g_list <- map(distances_list, graph_from_adjacency_matrix, mode="upper", weighted=TRUE, diag=FALSE)
+  mst_g_list <- map(g_list, minimum.spanning.tree, algorithm="prim")
   # E(mst_g)$weight  aqui estan las distancias
-  largos_acc <- c(largos_acc, sum(E(mst_g_acc)$weight))
-  largos_bon <- c(largos_bon, sum(E(mst_g_bon)$weight))
-  
-  corrs_acc <- c(corrs_acc, mean_corr_acc)
-  corrs_bon <- c(corrs_bon, mean_corr_bon)
-  corrs_all <- c(corrs_all, mean_corr_all)
-  
+  largos_list <- map(mst_g_list, function(net) sum(E(net)$weight) )
+  all_lengths <- unlist(largos_list)
+  content <- c(cont, all_lengths)
+  storage_data[cont, ] <- content
   cont <- cont + 1
 }
-Largos <- c(largos_acc, largos_bon)
-correlations <- c(corrs_acc, corrs_bon)
-Block <- rep(c(1:length(largos_acc)), 2)
-Type <- factor(c(rep("Shares",length(largos_acc)), rep("Bonds",length(largos_acc))))
-#largos <- data.frame(largos_acc=largos_acc, largos_bon=largos_bon)
-#largos$block <- c(1:length(largos_acc))
-dtf <- data.frame(Length=Largos, Block=Block, Type=Type, Correlations=correlations)
-corrs_combined <- data.frame(combined_correlations=corrs_all)
+# # # ## ## ## ## ## ## ## # CODE # ## ## ## ## ## ## ## #
+# beauty of the final data before to send
+storage_data <- as.data.frame(storage_data)
+colnames(storage_data) <- c("bloack", names(columnas))
+storage_data <- storage_data[complete.cases(storage_data), ]
+write.csv(storage_data,'mst_lengths_170419.csv')
+# # # ## ## ## ## ## ## ## # CODE # ## ## ## ## ## ## ## #
 
-ggplot(dtf, aes(x = Block, y = Length)) + geom_line(aes(color = Type), size = 1) +
-  xlab("Block") + ylab("MST Length") + 
-  labs(caption = "(window of 40 trading days shifted by 10 each time)") + 
-  scale_color_manual(values = c("#00AFBB", "#E7B800")) +
-  theme_minimal()
-
-write.csv(data,'data.csv')
-write.csv(dtf,'dtf.csv')
-write.csv(corrs_combined,'correlaciones_bond_and_shares.csv')
+plot(storage_data[,7], type="l" )
