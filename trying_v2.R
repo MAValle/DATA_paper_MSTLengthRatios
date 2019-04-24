@@ -12,8 +12,12 @@ rm(list = ls())
 library(igraph)
 library(ggplot2)
 library(purrr)
-#data <- read.csv("data150419.csv") #data daily
-data <- read.csv("data170419.csv") #data weekly
+modo ="d" # w es weekly, d es daily
+if (modo == "w") {
+  data <- read.csv("data170419.csv") #data weekly
+} else {
+  data <- read.csv("data150419.csv") #data daily
+}
 data <- data[complete.cases(data), ]
 
 
@@ -22,9 +26,13 @@ data <- data[complete.cases(data), ]
 
 #input:
 #columnas en data en las que se encuentra cada tipo de instrumento
-columnas <- list("america" = c(2,6,7,8,9,10,11,12), "europe" = c(13,14,15,16,17,18,19,20,21), "asia" = c(22,23,24,25,26,27,30),
-              "oceania" = c(28,29), "commodities" = c(31,32,33,34), "bonds" = c(3,4,5),
-              "all_indices" = c(2:34))
+columnas <- list("america" = c(2,6,7,8,9,10,11,12), 
+                 "europe" = c(13,14,15,16,17,18,19,20,21), 
+                 "asia" = c(22,23,24,25,26,27,28,29,30),
+                 #"oceania" = c(28,29), 
+                 "commodities" = c(31,32,33,34), 
+                 "bonds" = c(3,4,5),
+                 "all_indices" = c(2:34))
 #ejemplo: colsy$america
 # length(colsy) = 6
 
@@ -84,8 +92,11 @@ while ( fin <= nrow(data) ) {
 storage_data <- as.data.frame(storage_data)
 colnames(storage_data) <- c("block", names(columnas))
 storage_data <- storage_data[complete.cases(storage_data), ]
-write.csv(storage_data,'mst_lengths_daily_170419.csv')
-write.csv(storage_data,'mst_lengths_weekly_170419.csv')
+if (modo == "w") {
+  write.csv(storage_data,'mst_lengths_weekly_170419.csv')
+} else {
+  write.csv(storage_data,'mst_lengths_daily_170419.csv')
+}
 # # # ## ## ## ## ## ## ## # CODE # ## ## ## ## ## ## ## #
 
 plot(storage_data[,7], type="l" )
