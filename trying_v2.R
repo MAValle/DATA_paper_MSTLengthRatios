@@ -12,7 +12,7 @@ rm(list = ls())
 library(igraph)
 library(ggplot2)
 library(purrr)
-modo ="d" # w es weekly, d es daily
+modo ="w" # w es weekly, d es daily
 if (modo == "w") {
   data <- read.csv("data170419.csv") #data weekly
 } else {
@@ -65,12 +65,13 @@ desfase <- 5
 ini <- -4
 fin <- 0
 cont <- 1
+size <- 39
 storage_data <- matrix(NA, ncol=length(columnas)+1, nrow=nrow(data))
 while ( fin <= nrow(data) ) {
   cat("\r", "Processing data..Iteration number:", cont)
   ini <- ini + desfase
   #print(ini)
-  fin <- ini + 39
+  fin <- ini + size
   # get teh sub-data
   df <- get_subdt(data=data, colsy=columnas, ini=ini, fin=fin)
   # calculo de las correlaciones para cada dataframe contenida en la lista
@@ -102,12 +103,12 @@ if (modo == "w") {
 plot(storage_data[,7], type="l" )
 
 
-
+# aqui voy
 # 24-abr-19
-# viendo como calcular el largo que hay entre isntrumentos de un mismo tipo 
+# viendo como calcular el largo que hay entre instrumentos de un mismo tipo 
 # dentro de un MST.
 # un plot de mst de un periodo cualquiera
-mstnet <- mst_g_list[[7]] # mst
+mstnet <- mst_g_list[[6]] # mst
 coords <- layout_nicely(mstnet, dim = 2)
 plot(mstnet, layout = coords,
      vertex.size = 10,
@@ -120,6 +121,48 @@ plot(mstnet, layout = coords,
 
 names_america <- names(data[,c(2,6,7,8,9,10,11,12)]) # select the nodes having these names
 names_oceania <- names(data[,c(28,29)])
+x <- vector() # aqui vamos almacenando los edges id
+
+pair_nodes <- combn(names_america,2)
+i=2
+par <- pair_nodes[,i]
+p <- get.shortest.paths(mstnet, from=par[1], to=par[2])
+p <- p$vpath[[1]] # path between nodes (get the nodes all passing them)
+# ahora necesito los edges id que conectan lso vertices en p, y los meto en x
+x <- c(x, E(mstnet, path = p) ) # esta es la clave: https://igraph.org/r/doc/E.html
+.....
+
+#finalmente
+x <- unique(x)
+sum(E(mstnet)$weight[x])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+edgl <- get.edgelist(mstnet)
+E(mstnet)
+E(mstnet)$weight # problema aparecen solo NAs
+summary(mstnet)
+#find the id row in edgl that match par[1] y par[2]
+
+
+which( (edgl[,1] == par[1]) &&  (edgl[,2] == par[2]) )
+which( (edgl[,1] == par[2]) && (edgl[,2] == par[1]) )
+
+
+
+
+
 
 # https://www.biostars.org/p/100850/
 #g2 <- induced.subgraph(graph=mstnet,vids=unlist(neighborhood(graph=mstnet,order=2,nodes=names_oceania))) # no sirve
@@ -162,3 +205,4 @@ https://stackoverflow.com/questions/48746804/adjusting-visualization-of-igraph-p
 https://www.r-graph-gallery.com/248-igraph-plotting-parameters/
 https://rstudio-pubs-static.s3.amazonaws.com/337696_c6b008e0766e46bebf1401bea67f7b10.html
 https://stackoverflow.com/questions/23367765/extract-a-connected-subgraph-from-a-subset-of-vertices-with-igraph
+https://stackoverflow.com/questions/7931504/find-all-paths-between-two-vertices-nodes
