@@ -16,8 +16,6 @@ Let me explain some files here:
 
 * `get_orientation_function.R`: functions get_simple_orientation and get_windows_oriantations. The first one computes the net oriantation of a single state, and the second one computes the mean of net orientations for a time windows. 
 
-  The orientation of a neuron $i$ is $ q_i = -1$ or $q_i=1$  according to the sign of the return of the ratio. For a time $t$, $q_t = \langle q_j \rangle$. 
-
   
 
 ## Datasets and outputs
