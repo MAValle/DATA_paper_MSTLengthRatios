@@ -21,6 +21,9 @@
 # Creation date: 13.sep.19
 # name: trying_v4.R
 
+# Notes:
+# 22-oct-19: creamos prop de MST de un contienente / MSTl tomando como base
+#             el MST lengths de todos los contienentes, excluyendo bonos y commodities.
 
 # # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
 # 04.sep.19
@@ -31,13 +34,20 @@ source("find_mst_barrier_function.R")
 library(igraph)
 library(ggplot2)
 library(purrr)
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# 28.ago.2019  LOADING DATA
+# loading data de los retornos de los indices
 modo ="d" # w es weekly, d es daily
 if (modo == "w") {
   data <- read.csv("data170419.csv") #data weekly
 } else {
-  data <- read.csv("data150419.csv") #data daily
+  #data <- read.csv("data150419.csv") #data daily
+  data <- read.csv("data251019.csv") #data daily
 }
 data <- data[complete.cases(data), ]
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 
 # 17-abr-19
@@ -45,30 +55,31 @@ data <- data[complete.cases(data), ]
 
 #input:
 #columnas en data en las que se encuentra cada tipo de instrumento
-columnas <- list("america" = c(2,6,7,8,9,10,11,12), 
-                 "europe" = c(13,14,15,16,17,18,19,20,21), 
-                 "asia" = c(22,23,24,25,26,27,28,29,30),
-                 #"oceania" = c(28,29), 
-                 "commodities" = c(31,32,33,34), 
-                 "bonds" = c(3,4,5),
-                 "all_indices" = c(2:34))
+columnas <- list("america" = c(2:10),
+                 "namerica" = c(2:4), 
+                 "latam" = c(5:10), 
+                 "europe" = c(11:19), 
+                 "asiaocea" = c(20:28),
+                 "all_indices" = c(2:28)
+                 )
 #ejemplo: colsy$america
 # length(colsy) =  6
 # # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
 
 
-# # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # 04-sep-19
 # estoy viendo como extraer las fechas para poder calcular matriz de correlacion
 # por mes.
 #https://stackoverflow.com/questions/17496358/r-help-converting-factor-to-date
-data[,"Date"] <- as.Date(data[,"Date"], format = "%m/%d/%y")
+data[,"Dates"] <- as.Date(data[,"Dates"], format = "%m-%d-%y")
 mandy <- format(data$Date, "%m/%Y")
 data$mandy <- mandy
-library(igraph)
-mst_largos <- c()
 lasfechas_en_meses <- unique(format(data$Date, "%m/%Y"))
-# # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+
 
 # # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
 #13-sep-19
@@ -85,7 +96,7 @@ lasfechas_en_meses <- unique(format(data$Date, "%m/%Y"))
 #           Lnodos es la suma de los largos del MST para conectar el set de nodos, y 
 #           L es el largo total del MST.
 # nodos : es el set de nodos de interes para los cuales nos interesa calcular Lnodos.
-# Nota: las libraris igrpah y purrr deben ejecutarse antes de correr la funcion.
+# Nota: las librarias igrpah y purrr deben ejecutarse antes de correr la funcion.
 prop_monthly_mstlength <- function(data, lasfechas_en_meses, numcolu, nodos) {
   proportional_mst_largos <- vector(mode="numeric", length=length(lasfechas_en_meses))
   for (i in 1:length(lasfechas_en_meses) ) {
@@ -111,10 +122,40 @@ prop_monthly_mstlength <- function(data, lasfechas_en_meses, numcolu, nodos) {
 }
 # ejemplo:
 vv <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
-                             numcolu = columnas$all_indices, nodos = columnas$asia)
+                             numcolu = columnas$continents, nodos = columnas$asia)
 #creacion del output: dates en una columna y mst largo en la otra
 propmstL <- data.frame(date=lasfechas_en_meses, prop_mst_length=vv, stringsAsFactors =FALSE)
 # # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
+
+
+# # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
+# 22-oct-19
+# Utilizando la funcion prop_monthly_mstlength, calculamos los prop de MST
+# para cada continente
+prop_mstl_asia <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
+                             numcolu = columnas$all_indices, nodos = columnas$asiaocea)
+prop_mstl_ameri <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
+                                          numcolu = columnas$all_indices, nodos = columnas$america)
+prop_mstl_namer <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
+                                         numcolu = columnas$all_indices, nodos = columnas$namerica)
+prop_mstl_lata <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
+                                          numcolu = columnas$all_indices, nodos = columnas$latam)
+prop_mstl_euro <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
+                                         numcolu = columnas$all_indices, nodos = columnas$europe)
+# esta funcion vienen de trying_v3.R
+# Aqui calculamos el msl Length del MST de todos los indices.
+mstl_all <- monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, numcolu = columnas$all_indices)
+propmstL <- data.frame(date=lasfechas_en_meses, 
+                       prop_mstl_namer = prop_mstl_namer, 
+                       prop_mstl_ameri = prop_mstl_ameri,
+                       prop_mstl_latam = prop_mstl_lata, 
+                       prop_mstl_europ = prop_mstl_euro,
+                       prop_mstl_asiao = prop_mstl_asia, 
+                       mstl_all = mstl_all, 
+                       stringsAsFactors = FALSE)
+write.csv(propmstL, "proportional_mstlength_from_trying_v4_081119.csv", row.names = FALSE)
+# # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
+
 
 
 # # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
@@ -125,7 +166,7 @@ propmstL <- matrix(NA, ncol = length(columnas) - 1, nrow=length(lasfechas_en_mes
 todos <- length(columnas) - 1  
 for (j in 1:todos ) {
   vv <- prop_monthly_mstlength(data = data, lasfechas_en_meses = lasfechas_en_meses, 
-                          numcolu = columnas$all_indices, nodos = columnas[[j]])
+                          numcolu = columnas$continents, nodos = columnas[[j]])
   #propmstL[,j+1] <- vv
   propmstL[,j] <- vv
 }

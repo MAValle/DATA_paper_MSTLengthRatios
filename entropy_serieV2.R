@@ -1,7 +1,7 @@
 # En este script intentamos calculamos la serie de tiempo de entropia
 # para los indices tomando dtau=2 y bloques de segmento de tiempo TT = 1 mes.
 
-# las funsiones utilizadas aqui y la operatoria para calcular la serie
+# las funciones utilizadas aqui y la operatoria para calcular la serie
 # proviene de entropy_serieV1.R
 
 # Cabe aclarar que dado que se va calculando la entropia de cada mes, 
@@ -169,7 +169,8 @@ modo ="d" # w es weekly, d es daily
 if (modo == "w") {
   data <- read.csv("data170419.csv") #data weekly
 } else {
-  data <- read.csv("data150419.csv") #data daily
+  #data <- read.csv("data150419.csv") #data daily
+  data <- read.csv("data231019.csv") #data daily
 }
 data <- data[complete.cases(data), ]
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -205,7 +206,8 @@ df[, 1:n ] <- ifelse(df[, 1:n ] >= 0, 1 ,0)
 
 # step 1: define the states
 states <- defineStates(n=2, signos=1)
-dtau=2
+# states <- defineStates(n=1, signos=1)
+dtau=1
 col = 1  # columna binatizada a la cual encontramos la seri de tiempo entropiaca
 # la magia
 # Funcion que calcula todas las series de tiempo entropia para cada indice
@@ -227,9 +229,10 @@ compute_all_entropies_series <- function(df, fechas) {
   return(M)
 }
 # ejemplo
-salida <- compute_all_entropies_series(df = df[, c(1:33)], fechas = lasfechas_en_meses )
+salida <- compute_all_entropies_series(df = df[, c(1:34)], fechas = lasfechas_en_meses )
+salida <- as.data.frame(salida)
 salida <- cbind(salida, lasfechas_en_meses)
 colnames(salida) <- colnames(df)
-write.csv(salida, "entropies_from_entropy_serieV2_191019.csv", row.names = FALSE)
+write.csv(salida, "entropies_from_entropy_serieV2_231019.csv", row.names = FALSE)
 plot(salida[,2], type="l")
 

@@ -1,5 +1,7 @@
 # Lo que hacemos aqui es lo mismo que en trying_v2.R que es leer la base de 
-# datos de indices de bonos y acciones
+# datos de indices de bonos y acciones, y las correlaciones entre los indices 
+# de cada tipo para luego calcular 
+# el MST asociado, y finalmente encontrar el largo del MST L
 # de la data que viene de data150419.csv original de data_xlxs_150419.xlxs
 # y sacamos las correlaciones POR MES. 
 # Para esto tenemos que ir subseteando los datos POR MES.
@@ -18,7 +20,8 @@ modo ="d" # w es weekly, d es daily
 if (modo == "w") {
   data <- read.csv("data170419.csv") #data weekly
 } else {
-  data <- read.csv("data150419.csv") #data daily
+  #data <- read.csv("data150419.csv") #data daily
+  data <- read.csv("data251019.csv") #data daily
 }
 data <- data[complete.cases(data), ]
 
@@ -28,14 +31,15 @@ data <- data[complete.cases(data), ]
 
 #input:
 #columnas en data en las que se encuentra cada tipo de instrumento
-columnas <- list("america" = c(2,6,7,8,9,10,11,12), 
-                 "europe" = c(13,14,15,16,17,18,19,20,21), 
-                 "asia" = c(22,23,24,25,26,27,28,29,30),
-                 "oceania" = c(28,29), 
-                 "commodities" = c(31,32,33,34), 
-                 "bonds" = c(3,4,5),
-                 "all_indices" = c(2:34),
-                 "continents" = c(2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,28,29 ) )
+columnas <- list("namer" = c(2:4),
+                 "latam" = c(5:10),
+                 "america" = c(2:10),
+                 "europe" = c(11:19), 
+                 "asiaoc" = c(20:28),
+                 #"commodities" = c(31,32,33,34), 
+                 #"bonds" = c(3,4,5),
+                 "all_indices" = c(2:28))
+                 #"continents" = c(2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,28,29,30 ) )
 #ejemplo: colsy$america
 # length(colsy) =  6
 
@@ -45,8 +49,8 @@ columnas <- list("america" = c(2,6,7,8,9,10,11,12),
 # estoy viendo como extraer las fechas para poder calcular matriz de correlacion
 # por mes.
 #https://stackoverflow.com/questions/17496358/r-help-converting-factor-to-date
-data[,"Date"] <- as.Date(data[,"Date"], format = "%m/%d/%y")
-mandy <- format(data$Date, "%m/%Y")
+data[,"Dates"] <- as.Date(data[,"Dates"], format = "%m-%d-%y")
+mandy <- format(data$Dates, "%m/%Y")
 data$mandy <- mandy
 library(igraph)
 mst_largos <- c()
@@ -109,7 +113,7 @@ mstL$date <- ( as.character(mstL[,1]))
 
 
 #escritura de la dataframe
-write.csv(mstL, "mstlength_from_trying_v3_181019.csv", row.names = FALSE)
+write.csv(mstL, "mstlength_from_trying_v3_251019.csv", row.names = FALSE)
 plot(factor(mstL$date), mstL$mst_length)
 # # # # # # # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # ## # # # #
 
