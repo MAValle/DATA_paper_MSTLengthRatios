@@ -23,7 +23,9 @@ Let me explain some files here:
 * ``entropy_serieV1.R``: Se desarrollan las funciones para calcular la series de tiempo entropicas de los indices utilizando indices simulados de white noise, random walk.
 * ``entropy_serieV2.R``: Se desarrollan las funciones para calcular la series de tiempo entropicas de los indices utilizando indices financieros reales.
 * ``mst_figures_v1.R``: En este script hacemos las graficas de MST para el paper para epoca de pre, crisis y post crisis.
-* 
+* ``magner_mst_figures_nov21``: En este script hacemos las graficas de MST según meses predefinidos (nov2021)
+
+
 
 ## Datasets and outputs
 
@@ -42,7 +44,7 @@ Let me explain some files here:
 * ``edgesurvivals_from_trying_v5_151119.csv``
 * ``proportional_mstlength_from_trying_v4_081119.csv``
 * ``proportional_mstlength_from_trying_v4_221019.csv``
-
+* ``etf_q1_csv.csv``
 
 
 ## Results on the fly
