@@ -20,6 +20,7 @@ Let me explain some files here:
 * ``trying_v7.R``: De manera similar a trying_v3.R, calculamos el LArgo de la red PMFG  de todos los activos.
 * ``mst_centr.R``: In this script we compute the node strength of the COMPLETE net from correlations ad then distances.
 * ``get_monthly_centrality_function.R``: A function to compute the strength of each node of the COMPLETE net of DISTANCES, calculated from teh pearson correlations between shares.
+* ``mst_props.R``: In this script we compute the MST, but not the length, but other elements of MST as leave number, average shortest path lenght and Diameter.
 * `orientations.R`: computation of orientations from weekly and daily data.
 * `get_orientation_function.R`: functions get_simple_orientation and get_windows_oriantations. The first one computes the net oriantation of a single state, and the second one computes the mean of net orientations for a time windows. 
 * ``entropy_serieV1.R``: Se desarrollan las funciones para calcular la series de tiempo entropicas de los indices utilizando indices simulados de white noise, random walk.
