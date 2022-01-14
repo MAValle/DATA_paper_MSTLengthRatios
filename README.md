@@ -18,6 +18,8 @@ Let me explain some files here:
 * ``trying_v5.R``: Lo que hacemos aqui es obtener una medida de persistencia o survival  de los edges del MST a traves del tiempo. La Referencia es "Dynamic asset trees and black Monday" de Onnela.
 * ``trying_v6.R``: Lo que hacemos aqui es obtener: 1. el degree medio de los nodos del MST para cada periodo 2. the leaf number o numero de hojas del MST (nodos con degre = 1) 3. diameter of the tree 4. the tree hierarchy .
 * ``trying_v7.R``: De manera similar a trying_v3.R, calculamos el LArgo de la red PMFG  de todos los activos.
+* ``mst_centr.R``: In this script we compute the node strength of the COMPLETE net from correlations ad then distances.
+* ``get_monthly_centrality_function.R``: A function to compute the strength of each node of the COMPLETE net of DISTANCES, calculated from teh pearson correlations between shares.
 * `orientations.R`: computation of orientations from weekly and daily data.
 * `get_orientation_function.R`: functions get_simple_orientation and get_windows_oriantations. The first one computes the net oriantation of a single state, and the second one computes the mean of net orientations for a time windows. 
 * ``entropy_serieV1.R``: Se desarrollan las funciones para calcular la series de tiempo entropicas de los indices utilizando indices simulados de white noise, random walk.
