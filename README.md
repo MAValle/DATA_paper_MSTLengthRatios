@@ -9,6 +9,7 @@ Let me explain some files here:
 
 ## Scripts
 
+* `pdf_returns_freqs.R`: This script plots pdf of daily, weekly and monthly returns. Is the behavior of the returns the same at different frequencies?
 * `fi_test02.R`: This script calculates Fisher-Information based on paper from  paper "Fisher-Information and nonlinear dynamics". Referencie: Martin, M. T., Perez, J., & Plastino, A. (2001). Fisher information and nonlinear dynamics. Physica A: Statistical Mechanics and its Applications, 291(1-4), 523-532. We take as an example the price of gold
 * `trying_v2.R`: get the correlations between every pair of ratios and computes the mst length for time windows of 40 periods with slice of 10 periods. This is done for daily and weekly data.
 * ``trying_v3.R``: se calculan los MST length para los indices financieros.
