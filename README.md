@@ -9,6 +9,7 @@ Let me explain some files here:
 
 ## Scripts
 
+* `cdf_powerlaw_example.R`: This script computes the alpha exponent of the complementary cumulative distribution function using the returns of DowJones as example. The exponent was 2.44 (on the period analysis) which is in agreement with previous studies on financial power-law exponents.
 * `pdf_returns_freqs.R`: This script plots pdf of daily, weekly and monthly returns. Is the behavior of the returns the same at different frequencies?
 * `fi_test02.R`: This script calculates Fisher-Information based on paper from  paper "Fisher-Information and nonlinear dynamics". Referencie: Martin, M. T., Perez, J., & Plastino, A. (2001). Fisher information and nonlinear dynamics. Physica A: Statistical Mechanics and its Applications, 291(1-4), 523-532. We take as an example the price of gold
 * `trying_v2.R`: get the correlations between every pair of ratios and computes the mst length for time windows of 40 periods with slice of 10 periods. This is done for daily and weekly data.
